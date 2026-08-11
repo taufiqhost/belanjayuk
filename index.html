@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar - BelanjaYuk</title>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <style>
+    body { font-family: Arial; background:#0a0a0a; color:white; display:flex; justify-content:center; align-items:center; height:100vh; }
+    .box { background:#1a1a1a; padding:30px; border-radius:10px; border:2px solid #00ff88; width:350px; }
+    input { width:100%; padding:10px; margin:10px 0; border-radius:5px; border:1px solid #00ff88; background:#0a0a0a; color:white; }
+    button { width:100%; padding:12px; background:#00ff88; color:black; border:none; border-radius:5px; font-weight:bold; cursor:pointer; }
+    button:hover { background:#00cc6a; }
+    #otpBox { display:none; }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2 style="color:#00ff88; text-align:center;">BelanjaYuk 🛒</h2>
+  
+  <div id="registerBox">
+    <h3>Daftar Akun</h3>
+    <input type="text" id="name" placeholder="Nama Kamu">
+    <input type="email" id="email" placeholder="Email Kamu">
+    <button onclick="kirimOTP()">Kirim Kode OTP</button>
+  </div>
+
+  <div id="otpBox">
+    <h3>Masukkan OTP</h3>
+    <p>Kode dikirim ke <b id="showEmail"></b></p>
+    <input type="text" id="otpInput" placeholder="Masukkan 6 digit kode">
+    <button onclick="verifikasiOTP()">Verifikasi</button>
+  </div>
+</div>
+
+<script>
+  // 1. INIT EMAILJS
+  emailjs.init("YB0pHNoksbrK4fzjg");
+
+  let otpGlobal = "";
+  let emailGlobal = "";
+
+  // 2. FUNCTION KIRIM OTP
+  function kirimOTP() {
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+
+    if(!name || !email) {
+      alert("Nama dan Email wajib diisi!");
+      return;
+    }
+
+    // generate OTP 6 digit
+    otpGlobal = Math.floor(100000 + Math.random() * 900000);
+    emailGlobal = email;
+
+    const templateParams = {
+      to_name: name,
+      to_email: email,
+      passcode: otpGlobal
+    };
+
+    emailjs.send("service_hhoxw7m", "template_t5oquck", templateParams)
+      .then(function(response) {
+        // INI SATU-SATUNYA YANG GUE UBAH
+        alert("Kode Sudah Di Kirim Ke Email Anda,Silahkan Cek!!!"); 
+        document.getElementById("registerBox").style.display = "none";
+        document.getElementById("otpBox").style.display = "block";
+        document.getElementById("showEmail").innerText = email;
+      }, function(error) {
+        alert("Gagal kirim OTP: " + JSON.stringify(error));
+      });
+  }
+
+  // 3. FUNCTION VERIFIKASI OTP
+  function verifikasiOTP() {
+    const inputOTP = document.getElementById("otpInput").value;
+    if(inputOTP == otpGlobal) {
+      alert("Verifikasi Berhasil! Selamat datang di BelanjaYuk " + document.getElementById("name").value);
+      // disini bisa redirect ke halaman dashboard
+    } else {
+      alert("Kode yang Anda masukan salah silahkan coba lagi!!!"); // INI JUGA GUE SAMAIN
+    }
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BelanjaYuk - Belanja Online Termurah</title>
+    <link rel="icon" href="https://i.imgur.com/WRVAelJ.png">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a, #0d3b1e);
+            color: white;
+            margin: 0;
+            padding-top: 100px;
+        }
+        header {
+            background: #00ff88;
+            color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,255,136,0.4);
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            width: fit-content;
+        }
+        header h1 { margin: 0; font-size: 24px; display: flex; align-items: center; gap: 8px; }
+        
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 70vh;
+            padding: 20px;
+        }
+       .card-3d {
+            background: #111;
+            padding: 30px;
+            border-radius: 15px;
+            width: 420px;
+            box-shadow: 0 10px 30px rgba(0,255,136,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+            transform: perspective(1000px) rotateX(5deg);
+            transition: 0.3s;
+        }
+       .card-3d:hover { transform: perspective(1000px) rotateX(0deg); }
+        h2 { color: #00ff88; text-align: center; }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #ccc;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            background: #222;
+            color: white;
+            outline: none;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus, textarea:focus { border-color: #00ff88; }
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background: linear-gradient(90deg, #00ff88, #00cc66);
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,255,136,0.4);
+            transition: 0.2s;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { background: #333; color: #777; cursor: not-allowed; }
+        a { color: #00ff88; cursor: pointer; text-decoration: none; }
+       .hidden { display: none; }
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+        }
+        .loading { color: #00ff88; font-size: 12px; }
+       .version-badge {
+            position: fixed;
+            bottom: 15px;
+            left: 15px;
+            background: rgba(0,255,136,0.15);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            backdrop-filter: blur(5px);
+            z-index: 999;
+        }
+        /* TAMBAHAN BARU */
+       .row-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+       .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #ccc;
+        }
+       .checkbox-label input { width: 16px; height: 16px; margin: 0; }
+       .password-strength {
+            font-size: 12px;
+            margin-top: 5px;
+            height: 15px;
+        }
+       .strength-weak { color: #ff4444; }
+       .strength-medium { color: #ffbb33; }
+       .strength-strong { color: #00ff88; }
+       .security-note {
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+       .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s;
+        }
+       .modal-box {
+            background: linear-gradient(135deg, #111, #0d3b1e);
+            border: 2px solid #00ff88;
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 380px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0,255,136,0.5);
+            animation: slideUp 0.4s;
+        }
+       .modal-box .icon { font-size: 50px; margin-bottom: 15px; }
+       .modal-box h3 { color: #00ff88; margin: 0 0 10px 0; font-size: 22px; }
+       .modal-box p { color: #ccc; margin: 0 0 20px 0; font-size: 15px; }
+       .modal-box button { background: linear-gradient(90deg, #00ff88, #00cc66); color: #000; border: none; padding: 10px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; width: auto; }
+        @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+        @keyframes slideUp { from {transform: translateY(30px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
+    </style>
+</head>
+<body>
+    <header>
+        🛒
+        <h1>BelanjaYuk</h1>
+    </header>
+
+    <main class="container">
+        <div class="card-3d form-box" id="loginBox">
+            <h2>Masuk Akun</h2>
+            <form onsubmit="login(event)">
+                <label>No HP / Gmail</label>
+                <input type="text" id="loginUser" placeholder="08xxx / email@gmail.com" required>
+
+                <label>Password</label>
+                <input type="password" id="loginPass" placeholder="Masukkan password" required>
+
+                <div class="row-between">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="rememberMe"> Ingat Saya
+                    </label>
+                    <a onclick="showModal('Lupa Password', 'Fitur reset password akan dikirim ke email/No HP anda', '🔑')">Lupa Password?</a>
+                </div>
+
+                <button type="submit">Login</button>
+            </form>
+            <p>Belum punya akun? <a onclick="toggleForm()">Daftar Sekarang</a></p>
+            <div class="security-note">🔒 Data anda dienkripsi & aman</div>
+        </div>
+
+        <div class="card-3d form-box hidden" id="registerBox">
+            <h2>Buat Akun Baru</h2>
+            <form onsubmit="register(event)">
+                <label>Nama Lengkap</label>
+                <input type="text" id="regNama" required>
+
+                <label>No HP</label>
+                <input type="tel" id="regHp" required>
+
+                <label>Gmail</label>
+                <input type="email" id="regEmail" required>
+
+                <label>Password</label>
+                <input type="password" id="regPass" onkeyup="checkPasswordStrength()" required>
+                <div id="passStrength" class="password-strength"></div>
+
+                <label>Konfirmasi Password</label>
+                <input type="password" id="regPass2" required>
+
+                <label>Provinsi</label>
+                <select id="provinsi" onchange="loadKabupaten()" required>
+                    <option value="">-- Loading Provinsi... --</option>
+                </select>
+
+                <label>Kabupaten/Kota</label>
+                <select id="kabupaten" onchange="loadKecamatan()" required disabled>
+                    <option value="">-- Pilih Provinsi Dulu --</option>
+                </select>
+                <span id="loadingKab" class="loading hidden">Loading...</span>
+
+                <label>Kecamatan</label>
+                <select id="kecamatan" required disabled>
+                    <option value="">-- Pilih Kab/Kota Dulu --</option>
+                </select>
+                <span id="loadingKec" class="loading hidden">Loading...</span>
+
+                <label>Patokan Alamat</label>
+                <textarea id="regAlamat" placeholder="Contoh: Rumah cat hijau, dekat masjid Al-Hidayah" required></textarea>
+
+                <label class="checkbox-label">
+                    <input type="checkbox" id="agreeTerms" required> Saya setuju dengan <a onclick="showModal('S&K', 'Dengan mendaftar anda setuju dengan Syarat & Ketentuan BelanjaYuk', '📄')">Syarat & Ketentuan</a>
+                </label>
+
+                <button type="submit" id="btnDaftar">Daftar</button>
+            </form>
+            <p>Sudah punya akun? <a onclick="toggleForm()">Login</a></p>
+            <div class="security-note">🔒 Data anda dienkripsi & aman</div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 BelanjaYuk. Semua Hak Dilindungi.</p>
+    </footer>
+
+    <div class="version-badge">v1.0.0</div>
+    <div id="modalContainer"></div>
+
+    <script>
+        const API_URL = "https://www.emsifa.com/api-wilayah-indonesia/api";
+        let provinsiData = [];
+        let kabupatenData = [];
+        let kecamatanData = [];
+
+        function showModal(title, message, icon) {
+            const modalContainer = document.getElementById('modalContainer');
+            modalContainer.innerHTML = `
+                <div class="modal-overlay" onclick="closeModal()">
+                    <div class="modal-box" onclick="event.stopPropagation()">
+                        <div class="icon">${icon}</div>
+                        <h3>${title}</h3>
+                        <p>${message}</p>
+                        <button onclick="closeModal()">Oke</button>
+                    </div>
+                </div>
+            `;
+        }
+        function closeModal() {
+            document.getElementById('modalContainer').innerHTML = '';
+        }
+
+        function toggleForm() {
+            document.getElementById('loginBox').classList.toggle('hidden');
+            document.getElementById('registerBox').classList.toggle('hidden');
+        }
+
+        function checkPasswordStrength() {
+            const pass = document.getElementById('regPass').value;
+            const strengthText = document.getElementById('passStrength');
+            if(pass.length < 6) {
+                strengthText.innerHTML = '<span class="strength-weak">Password Lemah</span>';
+            } else if(pass.length < 10) {
+                strengthText.innerHTML = '<span class="strength-medium">Password Sedang</span>';
+            } else {
+                strengthText.innerHTML = '<span class="strength-strong">Password Kuat</span>';
+            }
+        }
+
+        function login(e) {
+            e.preventDefault();
+            const remember = document.getElementById('rememberMe').checked;
+            showModal('Login Berhasil!', `Selamat datang! ${remember ? 'Login akan diingat' : ''}`, '✅');
+        }
+
+        function register(e) {
+            e.preventDefault();
+            const pass = document.getElementById('regPass').value;
+            const pass2 = document.getElementById('regPass2').value;
+            const agree = document.getElementById('agreeTerms').checked;
+
+            if(pass !== pass2) {
+                showModal('Gagal Daftar', 'Konfirmasi password tidak sama', '❌');
+                return;
+            }
+            if(!agree) {
+                showModal('Gagal Daftar', 'Anda harus setuju dengan Syarat & Ketentuan', '❌');
+                return;
+            }
+
+            showModal('Selamat Datang!', 'Akun berhasil dibuat! Silahkan login.', '🎉');
+            setTimeout(() => {
+                closeModal();
+                toggleForm();
+            }, 2000);
+        }
+
+        async function loadProvinsi() {
+            try {
+                const res = await fetch(`${API_URL}/provinces.json`);
+                provinsiData = await res.json();
+                const provSelect = document.getElementById('provinsi');
+                provSelect.innerHTML = '<option value="">-- Pilih Provinsi --</option>';
+                provinsiData.forEach(p => {
+                    provSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+                });
+            } catch (error) {
+                document.getElementById('provinsi').innerHTML = '<option value="">Gagal Load Data</option>';
+            }
+        }
+
+        async function loadKabupaten() {
+            const provId = document.getElementById('provinsi').value;
+            if(!provId) return;
+            const kabSelect = document.getElementById('kabupaten');
+            const kecSelect = document.getElementById('kecamatan');
+            const loadingKab = document.getElementById('loadingKab');
+            
+            kabSelect.disabled = true;
+            kecSelect.disabled = true;
+            loadingKab.classList.remove('hidden');
+            kabSelect.innerHTML = '<option value="">-- Loading... --</option>';
+            kecSelect.innerHTML = '<option value="">-- Pilih Kab/Kota Dulu --</option>';
+
+            const res = await fetch(`${API_URL}/regencies/${provId}.json`);
+            kabupatenData = await res.json();
+            
+            kabSelect.innerHTML = '<option value="">-- Pilih Kab/Kota --</option>';
+            kabupatenData.forEach(k => {
+                kabSelect.innerHTML += `<option value="${k.id}">${k.name}</option>`;
+            });
+            kabSelect.disabled = false;
+            loadingKab.classList.add('hidden');
+        }
+
+        async function loadKecamatan() {
+            const kabId = document.getElementById('kabupaten').value;
+            if(!kabId) return;
+            const kecSelect = document.getElementById('kecamatan');
+            const loadingKec = document.getElementById('loadingKec');
+
+            kecSelect.disabled = true;
+            loadingKec.classList.remove('hidden');
+            kecSelect.innerHTML = '<option value="">-- Loading... --</option>';
+
+            const res = await fetch(`${API_URL}/districts/${kabId}.json`);
+            kecamatanData = await res.json();
+            
+            kecSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+            kecamatanData.forEach(k => {
+                kecSelect.innerHTML += `<option value="${k.name}">${k.name}</option>`;
+            });
+            kecSelect.disabled = false;
+            loadingKec.classList.add('hidden');
+        }
+
+        window.onload = loadProvinsi;
+    </script>
+</body>
+</html>

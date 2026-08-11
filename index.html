@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BelanjaYuk</title>
+    <link rel="icon" href="https://i.imgur.com/WRVAelJ.png">
+    <style>
+        body {font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0a0a0a, #0d3b1e); color: white; margin: 0; padding-top: 80px; display: flex; justify-content: center; align-items: center; min-height: 100vh; position: relative;}
+        
+        /* HEADER KECIL MELAYANG */
+        header {
+            background: #00ff88; 
+            color: #000; 
+            display: flex; 
+            gap: 8px; 
+            padding: 8px 18px;
+            border-radius: 12px; 
+            position: absolute; 
+            top: 15px;
+            left: 50%; 
+            transform: translateX(-50%);
+            box-shadow: 0 4px 15px rgba(0,255,136,0.4);
+        }
+        header h1 {font-size: 18px; margin: 0;} /* GA ADA v1.0.0 LAGI */
+
+        .card-3d {background: #111; padding: 30px; border-radius: 15px; width: 420px; box-shadow: 0 10px 30px rgba(0,255,136,0.3); max-height: 85vh; overflow-y: auto;}
+        h2 { color: #00ff88; text-align: center; } label { display: block; margin-top: 15px; color: #ccc; font-size:14px }
+        input, select, textarea {width: 100%; padding: 10px; margin-top: 5px; border: 2px solid #333; border-radius: 8px; background: #222; color: white; box-sizing: border-box;}
+        button {width: 100%; padding: 12px; margin-top: 20px; background: linear-gradient(90deg, #00ff88, #00cc66); border: none; border-radius: 8px; color: #000; font-weight: bold; font-size: 16px; cursor: pointer;}
+        .hidden { display: none; } 
+        .error-popup {background: #ff0044; color: white; padding: 10px; border-radius: 8px; text-align: center; margin-top: 15px; display: none;}
+        a {color:#00ff88; cursor:pointer; text-decoration: underline;}
+        .checkbox-wrap {display: flex; align-items: flex-start; gap: 8px; margin-top: 15px; font-size: 13px;}
+
+        /* VERSI DI SUDUT KIRI BAWAH LAYAR KECIL BANGET */
+        .app-version {
+            position: fixed;
+            bottom: 8px;
+            left: 10px;
+            font-size: 10px; 
+            color: #444; 
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+    <header>🛒 <h1>BelanjaYuk</h1></header> <!-- UDAH GA ADA v1.0.0 -->
+    <div class="app-version">v1.0.1</div> <!-- INI VERSI DI SUDUT -->
+
+    <!-- LOGIN -->
+    <div class="card-3d" id="loginBox">
+        <h2>Masuk Akun</h2>
+        <form onsubmit="login(event)">
+            <label>No HP / Gmail</label><input type="text" id="loginUser" placeholder="08xxx / email@gmail.com" required>
+            <label>Password</label><input type="password" id="loginPass" placeholder="Masukkan password" required>
+            <button type="submit">Login</button>
+        </form>
+        <div id="errorMsg" class="error-popup">Email/No HP atau Password salah</div>
+        <p style="text-align:center; margin-top:15px;">Belum punya akun? <a onclick="showBox('registerBox')">Daftar</a></p>
+        <!-- "Versi 1.0.0" UDAH GUE HAPUS DARI SINI -->
+    </div>
+
+    <!-- DAFTAR -->
+    <div class="card-3d hidden" id="registerBox">
+        <h2>Buat Akun Baru</h2>
+        <form onsubmit="registerStep1(event)">
+            <label>Nama Lengkap</label><input type="text" id="regNama" required>
+            <label>No HP</label><input type="text" id="regHp" placeholder="08xxxxxxxxxx" required>
+            <label>Email</label><input type="email" id="regEmail" placeholder="nama@gmail.com" required>
+            <label>Provinsi</label><select id="regProvinsi" onchange="loadKabupaten()" required><option value="">Pilih Provinsi</option></select>
+            <label>Kabupaten/Kota</label><select id="regKabupaten" onchange="loadKecamatan()" required><option value="">Pilih Kabupaten</option></select>
+            <label>Kecamatan</label><select id="regKecamatan" required><option value="">Pilih Kecamatan</option></select>
+            <label>Alamat Lengkap</label><textarea id="regAlamat" placeholder="cth: Jl. Patokan sebelum Masjid Al-Ikhlas No. 10" rows="3" required></textarea>
+            <div class="checkbox-wrap">
+                <input type="checkbox" id="agreeTnC" required>
+                <label for="agreeTnC">Saya setuju dengan <a onclick="alert('Syarat & Ketentuan')">Syarat & Ketentuan</a></label>
+            </div>
+            <button type="submit">Kirim OTP</button>
+        </form>
+        <p style="text-align:center; margin-top:15px;"><a onclick="showBox('loginBox')">Sudah punya akun? Login</a></p>
+    </div>
+
+    <!-- OTP & SET PASSWORD -->
+    <div class="card-3d hidden" id="otpBox"><h2>Verifikasi OTP</h2><p style="text-align:center;">Kode OTP: <b>123456</b></p><form onsubmit="verifyOtp(event)"><input type="text" id="otpInput" required><button>Verifikasi</button></form></div>
+    <div class="card-3d hidden" id="setPassBox"><h2>Buat Password</h2><form onsubmit="setPassword(event)"><input type="password" id="newPass" required><button>Simpan & Ke Login</button></form></div>
+
+    <script>
+        let tempUser = {};
+        window.onload = async () => {
+            if(localStorage.getItem('isLogin') === 'true') window.location.href = 'dashboard.html';
+            const res = await fetch('https://wilayah.id/api/provinces.json');
+            const prov = await res.json();
+            prov.forEach(p => regProvinsi.innerHTML += `<option value="${p.id}">${p.name}</option>`);
+        }
+        async function loadKabupaten() {
+            const id = regProvinsi.value; regKabupaten.innerHTML = '<option value="">Pilih Kabupaten</option>'; regKecamatan.innerHTML = '<option value="">Pilih Kecamatan</option>';
+            const res = await fetch(`https://wilayah.id/api/regencies/${id}.json`);
+            const kab = await res.json(); kab.forEach(k => regKabupaten.innerHTML += `<option value="${k.id}">${k.name}</option>`);
+        }
+        async function loadKecamatan() {
+            const id = regKabupaten.value; regKecamatan.innerHTML = '<option value="">Pilih Kecamatan</option>';
+            const res = await fetch(`https://wilayah.id/api/districts/${id}.json`);
+            const kec = await res.json(); kec.forEach(k => regKecamatan.innerHTML += `<option>${k.name}</option>`);
+        }
+        function showBox(id) { document.querySelectorAll('.card-3d').forEach(b => b.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+        function registerStep1(e) {
+            e.preventDefault();
+            if(!agreeTnC.checked) {alert('Anda harus centang Setuju Syarat & Ketentuan'); return;}
+            tempUser = {nama: regNama.value, hp: regHp.value, email: regEmail.value, provinsi: regProvinsi.options[regProvinsi.selectedIndex].text, kabupaten: regKabupaten.options[regKabupaten.selectedIndex].text, kecamatan: regKecamatan.value, alamat: regAlamat.value};
+            showBox('otpBox');
+        }
+        function verifyOtp(e) { e.preventDefault(); if(otpInput.value === '123456') showBox('setPassBox'); else alert('OTP Salah'); }
+        function setPassword(e) { e.preventDefault(); tempUser.password = newPass.value; localStorage.setItem('userBelanjaYuk', JSON.stringify(tempUser)); alert('Pendaftaran Berhasil! Silakan Login'); showBox('loginBox'); }
+        function login(e) { e.preventDefault(); errorMsg.style.display = 'none'; const savedUser = JSON.parse(localStorage.getItem('userBelanjaYuk')); if(savedUser && (savedUser.email === loginUser.value || savedUser.hp === loginUser.value) && savedUser.password === loginPass.value) { localStorage.setItem('isLogin', 'true'); window.location.href = 'dashboard.html'; } else { errorMsg.style.display = 'block'; }
+    </script>
+</body>
+</html>

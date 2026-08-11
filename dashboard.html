@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8"><title>Dashboard - BelanjaYuk v1.0.0</title>
+    <link rel="icon" href="https://i.imgur.com/WRVAelJ.png">
+    <style>
+        body { font-family: 'Segoe UI'; background: #0a0a0a; color: white; margin: 0; padding-bottom: 80px; }
+        header { background: #111; padding: 15px 20px; position: sticky; top: 0; border-bottom: 1px solid #00ff88; display:flex; justify-content:space-between; align-items:center}
+        .search-bar { display: flex; gap: 8px; background: #222; border-radius: 10px; padding: 10px 15px; width:70% }
+        .container { padding: 20px; } h3 { color: #00ff88; }
+        .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .product-card { background: #111; border-radius: 12px; border: 1px solid #333; padding:10px }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #111; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; }
+        .logout-btn {background:#ff0044; border:none; color:white; padding:8px 15px; border-radius:8px; cursor:pointer}
+    </style>
+</head>
+<body>
+    <header>
+        <div class="search-bar">🔍 <input placeholder="Cari di BelanjaYuk" style="background:none;border:none;color:white;width:100%"></div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </header>
+    <main class="container">
+        <h3>Rekomendasi Untukmu - v1.0.0</h3>
+        <div class="product-grid">
+            <div class="product-card"><b>Sepatu Nike</b><p style="color:#00ff88">Rp 850.000</p></div>
+            <div class="product-card"><b>Kaos Distro</b><p style="color:#00ff88">Rp 120.000</p></div>
+        </div>
+    </main>
+    <nav class="bottom-nav">
+        <div>🏠 Dashboard</div><div>🛒 Keranjang</div><div>👤 Akun</div>
+    </nav>
+
+    <script>
+        if(localStorage.getItem('isLogin')!== 'true') window.location.href = 'index.html';
+        function logout(){localStorage.removeItem('isLogin'); window.location.href = 'index.html';}
+    </script>
+</body>
+</html>

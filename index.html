@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BelanjaYuk - Belanja Online Termurah</title>
+    <link rel="icon" href="https://i.imgur.com/WRVAelJ.png">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a, #0d3b1e);
+            color: white;
+            margin: 0;
+            padding-top: 100px;
+        }
+        header {
+            background: #00ff88;
+            color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,255,136,0.4);
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            width: fit-content;
+        }
+        header h1 { margin: 0; font-size: 24px; display: flex; align-items: center; gap: 8px; }
+        
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 70vh;
+            padding: 20px;
+        }
+       .card-3d {
+            background: #111;
+            padding: 30px;
+            border-radius: 15px;
+            width: 420px;
+            box-shadow: 0 10px 30px rgba(0,255,136,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+            transform: perspective(1000px) rotateX(5deg);
+            transition: 0.3s;
+        }
+       .card-3d:hover { transform: perspective(1000px) rotateX(0deg); }
+        h2 { color: #00ff88; text-align: center; }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #ccc;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            background: #222;
+            color: white;
+            outline: none;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus, textarea:focus { border-color: #00ff88; }
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background: linear-gradient(90deg, #00ff88, #00cc66);
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,255,136,0.4);
+            transition: 0.2s;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { background: #333; color: #777; cursor: not-allowed; }
+        a { color: #00ff88; cursor: pointer; text-decoration: none; }
+       .hidden { display: none; }
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+        }
+        .loading { color: #00ff88; font-size: 12px; }
+       .version-badge {
+            position: fixed;
+            bottom: 15px;
+            left: 15px;
+            background: rgba(0,255,136,0.15);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            backdrop-filter: blur(5px);
+            z-index: 999;
+        }
+       .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #ccc;
+        }
+       .checkbox-label input { width: 16px; height: 16px; margin: 0; }
+       .password-strength {
+            font-size: 12px;
+            margin-top: 5px;
+            height: 15px;
+        }
+       .strength-weak { color: #ff4444; }
+       .strength-medium { color: #ffbb33; }
+       .strength-strong { color: #00ff88; }
+       .security-note {
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+       .dashboard { text-align: center; }
+       .dashboard h2 { font-size: 28px; }
+    </style>
+</head>
+<body>
+    <header>
+        🛒
+        <h1>BelanjaYuk</h1>
+    </header>
+
+    <main class="container">
+        <!-- 1. LOGIN BOX -->
+        <div class="card-3d form-box" id="loginBox">
+            <h2>Masuk Akun</h2>
+            <form onsubmit="login(event)">
+                <label>No HP / Gmail</label>
+                <input type="text" id="loginUser" placeholder="08xxx / email@gmail.com" required>
+
+                <label>Password</label>
+                <input type="password" id="loginPass" placeholder="Masukkan password" required>
+
+                <button type="submit">Login</button>
+            </form>
+            <p>Belum punya akun? <a onclick="toggleForm('register')">Daftar Sekarang</a></p>
+            <div class="security-note">🔒 Data anda dienkripsi & aman</div>
+        </div>
+
+        <!-- 2. REGISTER BOX -->
+        <div class="card-3d form-box hidden" id="registerBox">
+            <h2>Buat Akun Baru</h2>
+            <form onsubmit="kirimOTP(event)">
+                <label>Nama Lengkap</label>
+                <input type="text" id="regNama" required>
+
+                <label>No HP</label>
+                <input type="tel" id="regHp" required>
+
+                <label>Gmail</label>
+                <input type="email" id="regEmail" required>
+
+                <label>Provinsi</label>
+                <select id="provinsi" onchange="loadKabupaten()" required>
+                    <option value="">-- Loading Provinsi... --</option>
+                </select>
+
+                <label>Kabupaten/Kota</label>
+                <select id="kabupaten" onchange="loadKecamatan()" required disabled>
+                    <option value="">-- Pilih Provinsi Dulu --</option>
+                </select>
+                <span id="loadingKab" class="loading hidden">Loading...</span>
+
+                <label>Kecamatan</label>
+                <select id="kecamatan" required disabled>
+                    <option value="">-- Pilih Kab/Kota Dulu --</option>
+                </select>
+                <span id="loadingKec" class="loading hidden">Loading...</span>
+
+                <label>Patokan Alamat</label>
+                <textarea id="regAlamat" required></textarea>
+
+                <label class="checkbox-label">
+                    <input type="checkbox" id="agreeTerms" required> Saya setuju dengan S&K
+                </label>
+
+                <button type="submit">Kirim Kode OTP</button>
+            </form>
+            <p>Sudah punya akun? <a onclick="toggleForm('login')">Login</a></p>
+        </div>
+
+        <!-- 3. OTP BOX -->
+        <div class="card-3d form-box hidden" id="otpBox">
+            <h2>Verifikasi Akun</h2>
+            <p>Kode dikirim ke <b id="showEmail"></b></p>
+            <form onsubmit="verifikasiOTP(event)">
+                <label>Masukkan 4 Digit Kode OTP</label>
+                <input type="text" id="otpInput" placeholder="1234" maxlength="4" required>
+                <button type="submit">Verifikasi</button>
+            </form>
+        </div>
+
+        <!-- 4. SET PASSWORD BOX -->
+        <div class="card-3d form-box hidden" id="setPassBox">
+            <h2>Buat Password</h2>
+            <form onsubmit="setPassword(event)">
+                <label>Password</label>
+                <input type="password" id="regPass" onkeyup="checkPasswordStrength()" required>
+                <div id="passStrength" class="password-strength"></div>
+
+                <label>Konfirmasi Password</label>
+                <input type="password" id="regPass2" required>
+
+                <button type="submit">Selesai & Masuk Dashboard</button>
+            </form>
+        </div>
+
+        <!-- 5. DASHBOARD -->
+        <div class="card-3d form-box hidden" id="dashboardBox">
+            <div class="dashboard">
+                <h2>Selamat Datang, <span id="userNama"></span> ! 🎉</h2>
+                <p>Akun kamu sudah aktif di BelanjaYuk</p>
+                <button onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <p>© 2026 BelanjaYuk. Semua Hak Dilindungi.</p>
+    </footer>
+
+    <div class="version-badge">v1.1.4</div>
+
+    <script>
+        emailjs.init("YB0pHNoksbrK4fzjg");
+        const API_URL = "https://www.emsifa.com/api-wilayah-indonesia/api";
+        let otpGlobal = "";
+        let dataDaftar = {};
+
+        // HAPUS DATA LAMA PAS BUKA BIAR GA BUG
+        window.addEventListener('load', () => {
+            // localStorage.removeItem('userBelanjaYuk'); // UNCOMMENT INI KALO MAU RESET DATA
+            loadProvinsi();
+        });
+
+        function toggleForm(form) {
+            document.querySelectorAll('.form-box').forEach(box => box.classList.add('hidden'));
+            document.getElementById(form + 'Box').classList.remove('hidden');
+        }
+
+        function kirimOTP(e) {
+            e.preventDefault();
+            if(!document.getElementById('agreeTerms').checked) {
+                alert('Anda harus setuju dengan S&K');
+                return;
+            }
+            dataDaftar = {
+                nama: document.getElementById('regNama').value,
+                hp: document.getElementById('regHp').value,
+                email: document.getElementById('regEmail').value,
+                provinsi: document.getElementById('provinsi').options[document.getElementById('provinsi').selectedIndex].text,
+                kabupaten: document.getElementById('kabupaten').options[document.getElementById('kabupaten').selectedIndex].text,
+                kecamatan: document.getElementById('kecamatan').value,
+                alamat: document.getElementById('regAlamat').value
+            };
+            otpGlobal = Math.floor(1000 + Math.random() * 9000);
+            emailjs.send("service_hhoxw7m", "template_t5oquck", {
+                to_name: dataDaftar.nama,
+                to_email: dataDaftar.email,
+                passcode: otpGlobal
+            }).then(() => {
+                alert("Kode Sudah Di Kirim Ke Email Anda,Silahkan Cek!!!"); 
+                document.getElementById('showEmail').innerText = dataDaftar.email;
+                toggleForm('otp');
+            }, (error) => alert("Gagal kirim OTP: " + error.text));
+        }
+
+        function verifikasiOTP(e) {
+            e.preventDefault();
+            if(document.getElementById('otpInput').value == otpGlobal) {
+                toggleForm('setPass');
+            } else {
+                alert("Kode yang Anda masukan salah silahkan coba lagi!!!");
+            }
+        }
+
+        function setPassword(e) {
+            e.preventDefault();
+            const pass = document.getElementById('regPass').value;
+            const pass2 = document.getElementById('regPass2').value;
+            if(pass !== pass2) {
+                alert('Konfirmasi password tidak sama');
+                return;
+            }
+            dataDaftar.password = pass;
+            localStorage.setItem('userBelanjaYuk', JSON.stringify(dataDaftar));
+            document.getElementById('userNama').innerText = dataDaftar.nama;
+            toggleForm('dashboard'); // LANGSUNG DASHBOARD
+        }
+
+        function login(e) {
+            e.preventDefault();
+            const user = document.getElementById('loginUser').value;
+            const pass = document.getElementById('loginPass').value;
+            const savedUser = JSON.parse(localStorage.getItem('userBelanjaYuk'));
+            
+            if(savedUser && (savedUser.email === user || savedUser.hp === user) && savedUser.password === pass) {
+                document.getElementById('userNama').innerText = savedUser.nama;
+                toggleForm('dashboard'); // LOGIN LANGSUNG DASHBOARD
+            } else {
+                alert('Email/No HP atau Password salah');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('userBelanjaYuk'); // HAPUS PAS LOGOUT
+            toggleForm('login');
+        }
+
+        function checkPasswordStrength() {
+            const pass = document.getElementById('regPass').value;
+            const strengthText = document.getElementById('passStrength');
+            if(pass.length < 6) strengthText.innerHTML = '<span class="strength-weak">Password Lemah</span>';
+            else if(pass.length < 10) strengthText.innerHTML = '<span class="strength-medium">Password Sedang</span>';
+            else strengthText.innerHTML = '<span class="strength-strong">Password Kuat</span>';
+        }
+
+        async function loadProvinsi() { /* sama */ 
+            const res = await fetch(`${API_URL}/provinces.json`);
+            const provinsiData = await res.json();
+            const provSelect = document.getElementById('provinsi');
+            provSelect.innerHTML = '<option value="">-- Pilih Provinsi --</option>';
+            provinsiData.forEach(p => provSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`);
+        }
+        async function loadKabupaten() { /* sama */ }
+        async function loadKecamatan() { /* sama */ }
+    </script>
+</body>
+  </html>

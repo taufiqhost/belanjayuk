@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BelanjaYuk - Daftar</title>
+    <link rel="icon" href="https://i.imgur.com/WRVAelJ.png">
+    <style>
+        * {box-sizing: border-box; margin: 0; padding: 0;}
+        html, body {
+            height: 100%; overflow: hidden;
+            font-family: 'Segoe UI', sans-serif; 
+            background: linear-gradient(135deg, #0a0a0a, #0d3b1e); 
+            color: white;
+        }
+        body {display: flex; justify-content: center; align-items: center;}
+        header {
+            background: #00ff88; color: #000; display: flex; gap: 8px; 
+            padding: 10px 20px; border-radius: 12px; position: absolute; 
+            top: 20px; left: 50%; transform: translateX(-50%);
+            box-shadow: 0 4px 15px rgba(0,255,136,0.4); font-weight: bold; z-index: 10;
+        }
+       .card-3d {
+            background: #111; padding: 25px; border-radius: 16px; 
+            width: 90%; max-width: 450px; max-height: 90vh;
+            box-shadow: 0 10px 40px rgba(0,255,136,0.2);
+            overflow-y: auto;
+        }
+        .card-title {text-align: center; margin-bottom: 20px;}
+        .card-title h2 { color: #00ff88; font-size: 20px;}
+       .form-group {margin-bottom: 15px;}
+        label { display: block; margin-bottom: 6px; color: #ccc; font-size:14px; font-weight: 500;}
+        input, select, textarea {
+            width: 100%; padding: 12px; border: 1.5px solid #333; 
+            border-radius: 10px; background: #1a1a1a; color: white; font-size: 15px;
+        }
+        input:focus, select:focus { border-color: #00ff88; outline: none; background: #222;}
+        button {
+            width: 100%; padding: 14px; background: #00ff88; border: none; 
+            border-radius: 10px; color: #000; font-weight: bold; font-size: 16px; 
+            cursor: pointer; box-shadow: 0 4px 15px rgba(0,255,136,0.3); margin-top: 10px;
+        }
+        button:disabled {background: #444; color: #888; cursor: not-allowed;}
+       .checkbox-wrap {display: flex; align-items: center; gap: 10px; margin: 18px 0; font-size: 13px;}
+       .checkbox-wrap input[type="checkbox"] {width: 18px; height: 18px; accent-color: #00ff88; cursor: pointer;}
+       .checkbox-wrap a {color:#00ff88; font-weight: bold; text-decoration: none; border-bottom: 1px solid #00ff88;}
+       .hidden { display: none; }
+       .success-popup {background: #00ff88; color: #000; padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 15px; display: none;}
+       .timer {text-align: center; color: #aaa; margin-top: 10px; font-size: 13px;}
+       .link-bottom {text-align:center; margin-top:15px; font-size:14px; color: #aaa;}
+       .link-bottom a {color:#00ff88; font-weight: bold; cursor: pointer;}
+       .app-version {position: fixed; bottom: 8px; left: 10px; font-size: 10px; color: #444;}
+    </style>
+</head>
+<body>
+    <header>🛒 BelanjaYuk</header>
+    <div class="app-version">v1.1.0</div>
+
+    <div class="card-3d">
+        <!-- TAB DAFTAR -->
+        <div id="registerTab">
+            <div class="card-title"><h2>Buat Akun Baru</h2></div>
+            <form onsubmit="registerStep1(event)">
+                <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" id="regNama" placeholder="Masukkan nama lengkap" required>
+                </div>
+                <div class="form-group">
+                    <label>No Telpon</label>
+                    <input type="text" id="regHp" placeholder="08xxxxxxxxxx" required>
+                </div>
+                <div class="form-group">
+                    <label>Gmail</label>
+                    <input type="email" id="regEmail" placeholder="nama@gmail.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Provinsi</label>
+                    <select id="regProvinsi" onchange="loadKabupaten()" required><option value="">Pilih Provinsi</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Kabupaten</label>
+                    <select id="regKabupaten" onchange="loadKecamatan()" required><option value="">Pilih Provinsi Dulu</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Kecamatan</label>
+                    <select id="regKecamatan" required><option value="">Pilih Kabupaten Dulu</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Alamat</label>
+                    <textarea id="regAlamat" placeholder="cth: Jln Sudirman Rt 01 Rw 01 gang melati, rumah warna hijau" rows="2" required></textarea>
+                </div>
+
+                <div class="checkbox-wrap">
+                    <input type="checkbox" id="agreeTnC" required>
+                    <label for="agreeTnC">Saya setuju dengan <a onclick="alert('Syarat & Ketentuan BelanjaYuk')">Syarat & Ketentuan</a></label>
+                </div>
+
+                <button type="submit">KIRIM OTP</button>
+            </form>
+            <div class="link-bottom">Sudah punya akun? <a onclick="alert('Pindah ke Login')">Masuk</a></div>
+        </div>
+
+        <!-- TAB OTP -->
+        <div id="otpTab" class="hidden">
+            <div class="card-title"><h2>Verifikasi OTP</h2></div>
+            <div id="otpSentMsg" class="success-popup">Kode OTP sudah dikirim ke HP Anda!</div>
+            <p style="text-align:center; font-size:13px; color:#aaa">Kode OTP untuk testing: <b>1234</b></p> <!-- UDAH 4 DIGIT -->
+            <form onsubmit="verifyOtp(event)">
+                <div class="form-group">
+                    <input type="text" id="otpInput" placeholder="Masukkan 4 digit kode" maxlength="4" required> <!-- MAX 4 -->
+                </div>
+                <button type="submit">VERIFIKASI</button>
+            </form>
+            <div class="timer">Kirim ulang dalam <span id="countdown">60</span>s</div>
+            <button id="resendBtn" onclick="kirimUlangOTP()" disabled>Kirim Ulang OTP</button>
+        </div>
+    </div>
+
+    <script>
+        let tempUser = {};
+        let countdownTimer;
+        const API = 'https://www.emsifa.com/api-wilayah-indonesia/api';
+        const KODE_OTP = "1234"; // UDAH GUE GANTI JADI 4 DIGIT
+
+        window.onload = () => { loadProvinsi(); }
+
+        async function loadProvinsi() {
+            const res = await fetch(`${API}/provinces.json`);
+            const prov = await res.json();
+            regProvinsi.innerHTML = '<option value="">Pilih Provinsi</option>';
+            prov.forEach(p => regProvinsi.innerHTML += `<option value="${p.id}">${p.name}</option>`);
+        }
+        async function loadKabupaten() {
+            const id = regProvinsi.value;
+            regKabupaten.innerHTML = '<option>Loading...</option>';
+            regKecamatan.innerHTML = '<option>Pilih Kabupaten Dulu</option>';
+            const res = await fetch(`${API}/regencies/${id}.json`);
+            const kab = await res.json();
+            regKabupaten.innerHTML = '<option value="">Pilih Kabupaten</option>';
+            kab.forEach(k => regKabupaten.innerHTML += `<option value="${k.id}">${k.name}</option>`);
+        }
+        async function loadKecamatan() {
+            const id = regKabupaten.value;
+            regKecamatan.innerHTML = '<option>Loading...</option>';
+            const res = await fetch(`${API}/districts/${id}.json`);
+            const kec = await res.json();
+            regKecamatan.innerHTML = '<option value="">Pilih Kecamatan</option>';
+            kec.forEach(k => regKecamatan.innerHTML += `<option>${k.name}</option>`);
+        }
+
+        function startCountdown() {
+            let time = 60; resendBtn.disabled = true; countdown.textContent = time;
+            clearInterval(countdownTimer);
+            countdownTimer = setInterval(() => {
+                time--; countdown.textContent = time;
+                if(time <= 0) { clearInterval(countdownTimer); resendBtn.disabled = false; }
+            }, 1000);
+        }
+
+        function kirimUlangOTP() {
+            otpSentMsg.style.display = 'block';
+            setTimeout(() => otpSentMsg.style.display = 'none', 3000);
+            startCountdown();
+        }
+
+        function registerStep1(e) {
+            e.preventDefault();
+            if(!agreeTnC.checked) {alert('Anda harus centang Setuju Syarat & Ketentuan'); return;}
+            
+            tempUser = {
+                nama: regNama.value, hp: regHp.value, email: regEmail.value, 
+                provinsi: regProvinsi.options[regProvinsi.selectedIndex].text, 
+                kabupaten: regKabupaten.options[regKabupaten.selectedIndex].text, 
+                kecamatan: regKecamatan.value, 
+                alamat: regAlamat.value
+            };
+            localStorage.setItem('tempUser', JSON.stringify(tempUser));
+            
+            document.getElementById('registerTab').classList.add('hidden');
+            document.getElementById('otpTab').classList.remove('hidden');
+            otpSentMsg.style.display = 'block';
+            setTimeout(() => otpSentMsg.style.display = 'none', 3000);
+            startCountdown();
+        }
+
+        function verifyOtp(e) { 
+            e.preventDefault(); 
+            if(otpInput.value === KODE_OTP) { // CEK 4 DIGIT
+                clearInterval(countdownTimer);
+                alert('OTP Benar! Pendaftaran Berhasil. Data tersimpan: ' + tempUser.nama);
+                localStorage.setItem('userBelanjaYuk', JSON.stringify(tempUser));
+                localStorage.removeItem('tempUser');
+            } else { 
+                alert('OTP Salah! Kode yang benar: 1234'); 
+            } 
+        }
+    </script>
+</body>
+          </html>
